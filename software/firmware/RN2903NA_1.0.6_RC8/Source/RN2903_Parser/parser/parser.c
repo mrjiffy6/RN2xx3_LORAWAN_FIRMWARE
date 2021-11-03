@@ -44,7 +44,7 @@
 #include "../mcc_generated_files/eusart1.h"
 
 #if defined(DEBUGMACMSG) || defined(DEBUGLINKADR)
-#define VER_STR            "1.0.6 RC6-test1-debug"
+#define VER_STR            "1.0.6 RC8-test1-debug"
 #else
 #define VER_STR            "1.0.6 RC8"
 #endif // DEBUG...

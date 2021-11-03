@@ -67,7 +67,8 @@ typedef enum
     TXPOWER_INDEX_22dBm,        // pwridx 4
     TXPOWER_INDEX_20dBm,        // pwridx 5 default
     TXPOWER_INDEX_18dBm,        // pwridx 6
-    TXPOWER_INDEX_16dBm,        // pwridx 7 TXPOWER_INDEX_14dBm,        // pwridx 8
+    TXPOWER_INDEX_16dBm,        // pwridx 7 
+    TXPOWER_INDEX_14dBm,        // pwridx 8
     TXPOWER_INDEX_12dBm,        // pwridx 9
     TXPOWER_INDEX_10dBm,        // pwridx 10
             

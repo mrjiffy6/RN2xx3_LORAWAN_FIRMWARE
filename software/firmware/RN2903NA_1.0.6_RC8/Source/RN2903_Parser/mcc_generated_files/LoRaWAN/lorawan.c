@@ -51,17 +51,50 @@
 #endif // DEBUGMACMSG
 /****************************** VARIABLES *************************************/
 
-//CID = LinkCheckReq     = 2
-//CID = LinkADRAns       = 3
-//CID = DutyCycleAns     = 4
-//CID = RX2SetupAns      = 5
-//CID = DevStatusAns     = 6
-//CID = NewChannelAns    = 7
-//CID = RXTimingSetupAns = 8
+/// The only MAC command initiated by end-device is LinkCheckReq. All other are
+// answers to request from the server
+//
+//CID = LinkCheckReq     = 2 (req length 0 / ans length 2)  -> length 0
+//CID = LinkADRAns       = 3 (req length 4 / ans length 1)  -> length 1
+//CID = DutyCycleAns     = 4 (req length 1 / ans length 0)  -> length 0
+//CID = RX2SetupAns      = 5 (req length 4 / ans length 1)  -> length 1
+//CID = DevStatusAns     = 6 (req length 0 / ans length 2)  -> length 2
+//CID = NewChannelAns    = 7 (req length 5 / ans length 1)  -> length 1 // not used in US902-928
+//CID = RXTimingSetupAns = 8 (req length 1 / ans length 0)  -> length 0
+
+// Below missing / not implemented?
+//CID = TxParamSetupAns  = 9 (req length 1 / ans length 0)  -> length 0 // NOT IMPLEMENTED OK: not used in US902-928
+//CID = DlChannelAns     = 10 (req length 4 / ans length 1) -> length 1 // NOT IMPLEMENTED OK: not used in US902-928
+
 // Index in macEndDevCmdReplyLen = CID - 2
-static const uint8_t macEndDevCmdReplyLen[] = {1, 2, 1, 2, 3, 2, 1};
+// NOTE NJ: having incorrect reply len will cause some MAC reply to *not* be sent
+// to the server, in case of several piggybacked mac replies where overall length
+// is near of the maximum allowed length (FOPS length (0x0F))
+//static const uint8_t macEndDevCmdReplyLen[] = {1, /* LinkCheckReq: NOT OK? Should be 0 */
+//											   2, /* LinkADRAns: NOT OK? Should be 1 */
+//											   1, /* DutyCycleAns: NOT OK? Should be 0 */
+//											   2, /* RXParamSetupAns: NOT OK? Should be 1 */
+//											   3, /* DevStatusAns: NOT OK? Should be 2 */ 
+//											   2, /* NewChannelAns: NOT OK? Should be 1 */
+//											   1}; /* RXTimingSetupAns: NOT OK? Should be 0 */
+static const uint8_t macEndDevCmdReplyLen[] = {0,
+											   1, 
+											   0, 
+											   1, 
+											   2,
+											   1,
+                                               0};
 //Excludes command id
-static const uint8_t macEndDevCmdReqLen[] = {2, 4, 1, 4, 0, 5, 1, 1, 4};
+// NOTE NJ: this array is not even used anywhere... 
+static const uint8_t macEndDevCmdReqLen[] = {2 /* LinkCheckReq: NOT OK? Should be 0 */, 
+											 4 /* LinkADRReq: OK */, 
+											 1 /* DutyCycleReq: OK */, 
+											 4 /* RXParamSetupReq: OK */, 
+											 0 /* DevStatusReq: OK */, 
+											 5 /* NewChannelReq: OK */, 
+											 1 /* RXTimingSetupReq: OK */, 
+											 1 /* TxParamSetupReq: OK */, 
+											 4}; /* DlChannelReq: OK */
 
 LoRa_t loRa;
 
@@ -2273,7 +2306,7 @@ static void IncludeMacCommandsResponse (uint8_t* macBuffer, uint8_t* pBufferInde
                 break;
             }
         }
-        switch (loRa.macCommands[i].receivedCid)
+        switch (loRa.macCommands[i].receivedCid) // LinkADRAns -> length 1 (OK)
         {
             case LINK_ADR_CID:
             {
@@ -2297,7 +2330,7 @@ static void IncludeMacCommandsResponse (uint8_t* macBuffer, uint8_t* pBufferInde
             }
             break;
 
-            case RX_PARAM_SETUP_CID:
+            case RX_PARAM_SETUP_CID: // RXParamSetupAns -> length 1 (OK)
             {
                 macBuffer[bufferIndex++] = RX_PARAM_SETUP_CID;
                 macBuffer[bufferIndex] = 0x00;
@@ -2321,7 +2354,7 @@ static void IncludeMacCommandsResponse (uint8_t* macBuffer, uint8_t* pBufferInde
             }
             break;    
 
-            case DEV_STATUS_CID:
+            case DEV_STATUS_CID: // DevStatusAns -> length 2 (OK)
             {
                 macBuffer[bufferIndex++] = DEV_STATUS_CID;
                 macBuffer[bufferIndex++] = loRa.batteryLevel;
@@ -2336,7 +2369,7 @@ static void IncludeMacCommandsResponse (uint8_t* macBuffer, uint8_t* pBufferInde
             }
             break;    
 
-            case NEW_CHANNEL_CID:
+            case NEW_CHANNEL_CID: // NewChannelAns -> length 1 (OK)
             {
                 macBuffer[bufferIndex++] = NEW_CHANNEL_CID;
                 macBuffer[bufferIndex] = 0x00;
@@ -2353,7 +2386,7 @@ static void IncludeMacCommandsResponse (uint8_t* macBuffer, uint8_t* pBufferInde
             }
             break;
             
-            case LINK_CHECK_CID:
+            case LINK_CHECK_CID: // LinkCheckReq -> length 0 (OK)
             {
                 loRa.linkCheckMargin = 255; // reserved
                 loRa.linkCheckGwCnt = 0;
@@ -2361,12 +2394,12 @@ static void IncludeMacCommandsResponse (uint8_t* macBuffer, uint8_t* pBufferInde
             }
             break;                 
 
-            case RX_TIMING_SETUP_CID: 
+            case RX_TIMING_SETUP_CID: // RXTimingSetupAns -> length 0 (OK)
             {
                 macBuffer[bufferIndex++] = loRa.macCommands[i].receivedCid;
             }
             break;
-            case DUTY_CYCLE_CID:      //Fallthrough
+            case DUTY_CYCLE_CID:      // DutyCycleAns -> length 0 (OK)
             {
                 macBuffer[bufferIndex++] = loRa.macCommands[i].receivedCid;
             }

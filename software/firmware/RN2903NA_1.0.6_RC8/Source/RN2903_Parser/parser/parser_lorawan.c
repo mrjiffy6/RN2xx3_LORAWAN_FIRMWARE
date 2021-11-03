@@ -117,7 +117,7 @@ static const char* gapParserLorawanStatus[] =
     {"invalid_data_len"},
     {"mac_paused"},
     {"no_free_ch"},
-    {"busy" PARSER_END_LINE_DELIM_STRING "mac_cmd_reply"},
+    {"busy\n\rmac_cmd_reply"}, // TODO: replace \n\r with _ eventually
     {"invalid_class"},
     {"multicast_keys_not_set"},  
     {"multicast_msg_err"},
