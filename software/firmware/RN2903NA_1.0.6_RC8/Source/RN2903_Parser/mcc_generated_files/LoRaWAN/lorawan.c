@@ -51,17 +51,21 @@
 #endif // DEBUGMACMSG
 /****************************** VARIABLES *************************************/
 
-//CID = LinkCheckReq     = 2
-//CID = LinkADRAns       = 3
-//CID = DutyCycleAns     = 4
-//CID = RX2SetupAns      = 5
-//CID = DevStatusAns     = 6
-//CID = NewChannelAns    = 7
-//CID = RXTimingSetupAns = 8
+//CID 2 = LinkCheckReq     = 2 (req length 0 / ans length 2)  -> length 0 (1 with CID)
+//CID 3 = LinkADRAns       = 3 (req length 4 / ans length 1)  -> length 1 (2 with CID)
+//CID 4 = DutyCycleAns     = 4 (req length 1 / ans length 0)  -> length 0 (1 with CID)
+//CID 5 = RX2SetupAns      = 5 (req length 4 / ans length 1)  -> length 1 (2 with CID)
+//CID 6 = DevStatusAns     = 6 (req length 0 / ans length 2)  -> length 2 (3 with CID)
+//CID 7 = NewChannelAns    = 7 (req length 5 / ans length 1)  -> length 1 (2 with CID) // NOT IMPLEMENTED OK: not used in US902-928
+//CID 8 = RXTimingSetupAns = 8 (req length 1 / ans length 0)  -> length 0 (1 with CID)
+// Below missing / not implemented?
+//CID 9 = TxParamSetupAns  = 9 (req length 1 / ans length 0)  -> length 0 (1 with CID) // NOT IMPLEMENTED OK: not used in US902-928
+//CID 10 = DlChannelAns    = 10 (req length 4 / ans length 1) -> length 1 (2 with CID) // NOT IMPLEMENTED OK: not used in US902-928
 // Index in macEndDevCmdReplyLen = CID - 2
-static const uint8_t macEndDevCmdReplyLen[] = {1, 2, 1, 2, 3, 2, 1};
+static const uint8_t macEndDevCmdReplyLen[] = {1, 2, 1, 2, 3, 2, 1}; // HERE NJ: lengths are OK, there is + 1 for the CID!!!
 //Excludes command id
-static const uint8_t macEndDevCmdReqLen[] = {2, 4, 1, 4, 0, 5, 1, 1, 4};
+// HERE NJ: not even used in code
+//static const uint8_t macEndDevCmdReqLen[]   = {2, 4, 1, 4, 0, 5, 1, 1, 4};
 
 LoRa_t loRa;
 
@@ -2118,15 +2122,15 @@ static void AssemblePacket (bool confirmed, uint8_t port, uint8_t *buffer, uint1
         fCtrl.fOptsLen = 0;
         if ( rxParamSetupReqAnsFlag )
         {
-            fCtrl.fOptsLen += 2;
+            fCtrl.fOptsLen += 2; // HERE NJ: length OK (there is + 1 for CID)
         }
         if ( rxTimingSetupReqAnsFlag )
         {
-            fCtrl.fOptsLen += 1;
+            fCtrl.fOptsLen += 1; // HERE NJ: length OK (there is + 1 for CID)
         }     
         if ( dlChannelReqAnsFlag )
         {
-            fCtrl.fOptsLen += 2;
+            fCtrl.fOptsLen += 2; // HERE NJ: length OK (there is + 1 for CID)
         }
     }
     else if(bufferLength != 0)
