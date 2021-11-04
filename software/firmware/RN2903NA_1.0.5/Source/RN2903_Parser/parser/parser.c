@@ -81,7 +81,6 @@ void Parser_Init(void)
     //Initialize LoRaWAN stack
     Parser_LorawanInit();
 
-    //TODO: restore gParserParams from NVM
 }
 
 void Parser_Main (void)
@@ -164,7 +163,15 @@ static uint8_t Parser_ProcessCmd(const parserCmdEntry_t* pParserCmd, uint8_t nbP
     for(cmdCtr = 0; cmdCtr < nbParserCmd; cmdCtr ++)
     {
         parserCmdEntry = *(pParserCmd + cmdCtr);
+#if defined(DEBUG_SLEEP)
+        char cmd[25];
+        char entry[25];
+        strcpy(&cmd[0], (char*)&mRxParserCmd.cmd[mRxParserCmd.wordStartPos[rxCmdIdx]]);
+        strcpy(&entry[0], parserCmdEntry.pCommand);
+        if(strcmp(&entry[0], &cmd[0]) == 0U)
+#else // DEBUG_SLEEP
         if(strcmp(parserCmdEntry.pCommand, (char*)&mRxParserCmd.cmd[mRxParserCmd.wordStartPos[rxCmdIdx]]) == 0U)
+#endif // DEBUG_SLEEP
         {
             /* Command found */
             break;

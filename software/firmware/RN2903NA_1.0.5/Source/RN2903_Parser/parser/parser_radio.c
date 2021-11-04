@@ -584,7 +584,7 @@ void Parser_RadioGetSnr(parserCmdInfo_t* pParserCmdInfo)
 
 void Parser_RadioGetRSSI(parserCmdInfo_t* pParserCmdInfo)
 {
-    int8_t packetRSSI;
+    int16_t packetRSSI;
 
     packetRSSI = RADIO_GetPacketRSSI();
     itoa(aParserData, packetRSSI, 10U);

@@ -174,6 +174,7 @@ static const parserCmdEntry_t maParserSysSetCmd[] =
     {"nvm",         NULL,                       Parser_SystemSetNvm,            0,                              2},
     {"pinmode",     NULL,                       Parser_SystemSetPinMode,        0,                              2},
     {"pindig",      NULL,                       Parser_SystemSetPinDig,         0,                              2},
+    {"abdtime",     NULL,                       Parser_SystemSetABDTime,        0,                              1},
 };
 #define mParserSysSetCmdSize (sizeof(maParserSysSetCmd) / sizeof(maParserSysSetCmd[0]))
 
@@ -187,6 +188,7 @@ static const parserCmdEntry_t maParserSysGetCmd[] =
     {"hweui",       NULL,                       Parser_SystemGetHwEui,          0,                              0},
     {"pindig",      NULL,                       Parser_SystemGetPinDig,         0,                              1},
     {"pinana",      NULL,                       Parser_SystemGetPinAnalog,      0,                              1},
+    {"abdtime",     NULL,                       Parser_SystemGetABDTime,        0,                              0},
 };
 #define mParserSysGetCmdSize (sizeof(maParserSysGetCmd) / sizeof(maParserSysGetCmd[0]))
 
@@ -278,7 +280,7 @@ const parserCmdEntry_t maParserBaseCmd[] =
     {"mac",         maParserLoraCmd,            NULL,                           mParserLoraCmdSize,             0},
     {"sys",         maParserSysCmd,             NULL,                           mParserSysCmdSize,              0},
     {"radio",       maParserRadioCmd,           NULL,                           mParserRadioCmdSize,            0},
-#ifdef DEBUGLINKADR
+#if defined(DEBUGLINKADR)
     {"debuglinkadr",NULL,                       Parser_DebugLinkADR,            0,                              1},
 #endif // DEBUGLINKADR
 };

@@ -52,6 +52,12 @@ typedef union
 typedef union
 {
     uint16_t value;
+    uint8_t buffer[2];
+}auint16_t;
+
+typedef union
+{
+    uint16_t value;
     struct
     {
         unsigned int deveui         : 1;

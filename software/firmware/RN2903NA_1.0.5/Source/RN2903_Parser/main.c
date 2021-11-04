@@ -77,6 +77,11 @@ void main(void)
     
     // Initialize the device
     SYSTEM_Initialize();
+#if defined(DEBUG_SLEEP)
+    GPIO13_SetHigh();           // set high
+    GPIO13_SetDigitalMode();    // configure as digital
+    GPIO13_SetDigitalOutput();  // configure as output
+#endif // defined(DEBUG_SLEEP)
 	FVR_DeInitialize();
     // If using interrupts in PIC18 High/Low Priority Mode you need to enable the Global High and Low Interrupts
     // If using interrupts in PIC Mid-Range Compatibility Mode you need to enable the Global and Peripheral Interrupts
@@ -153,6 +158,7 @@ static uint16_t AppRestoreMacFromEep(void)
 {
     auint32_t temp32;
     uint16_t temp16;
+    auint16_t itemp16;
     uint16_t tempXor = 0;
     uint16_t startIdx;
     uint8_t tempBuff[16];
@@ -319,6 +325,14 @@ static uint16_t AppRestoreMacFromEep(void)
         LORAWAN_SetMcastDeviceAddress(temp32.value);
     }
     
+    // Restore multicast downlink counter
+    for(iCtr = 0U; iCtr < 4U; iCtr ++)
+    {
+        temp32.buffer[iCtr] = DATAEE_ReadByte(startIdx ++);
+        tempXor += temp32.buffer[iCtr];
+    }
+    LORAWAN_SetMcastDownCounter(temp32.value);
+
     temp = DATAEE_ReadByte(startIdx ++);
     tempXor += temp;
     LORAWAN_SetMcast(temp);
@@ -328,7 +342,6 @@ static uint16_t AppRestoreMacFromEep(void)
     for(jCtr = 0U; jCtr < 72U; jCtr ++)
     {
         //Channel status
-        //Todo: check if memory == 0 then status = disable
         temp = DATAEE_ReadByte(startIdx ++);
         tempXor += temp;
         LORAWAN_SetChannelIdStatus(jCtr, (temp > 0) ? 1: 0);
@@ -350,6 +363,21 @@ static uint16_t AppRestoreMacFromEep(void)
     tempXor += temp;    
     LORAWAN_SetAdr(temp);
 
+    //Current Receive Offset
+    temp = DATAEE_ReadByte(startIdx ++);
+    tempXor += temp;    
+    LORAWAN_SetReceiveOffset(temp);
+    
+    //Current Rx1Delay
+    itemp16.value = 0;
+        for(iCtr = 0U; iCtr < 2U; iCtr ++)
+        {
+            itemp16.buffer[iCtr] = DATAEE_ReadByte(startIdx ++);
+            tempXor += itemp16.buffer[iCtr];
+        }
+        LORAWAN_SetReceiveDelay1(itemp16.value);
+    
+    
     if(tempXor == 0xFFFF)
     {
         tempXor = 0;

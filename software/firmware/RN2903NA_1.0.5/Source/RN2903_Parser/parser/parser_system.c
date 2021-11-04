@@ -109,7 +109,7 @@ void Parser_SystemSleep(parserCmdInfo_t* pParserCmdInfo)
 
     //TODO: remove (param1Value > 100) and only leave (param1Value > 0)
     if((Validate_UintDecAsciiValue(pParserCmdInfo->pParam1, 10, UINT32_MAX)) &&
-       (param1Value >= 100))
+       ((param1Value >= 100) || (0 == param1Value)))
     {
         SysSleepStart(param1Value);
     }
@@ -916,7 +916,33 @@ void Parser_SystemGetHwEui(parserCmdInfo_t* pParserCmdInfo)
     pParserCmdInfo->pReplyCmd = aParserData;
 }
 
-#ifdef DEBUGLINKADR
+void Parser_SystemSetABDTime(parserCmdInfo_t* pParserCmdInfo)
+{
+    uint32_t param1Value = (uint32_t)strtoul(pParserCmdInfo->pParam1, NULL, 10U);
+
+    if((Validate_UintDecAsciiValue(pParserCmdInfo->pParam1, 10, UINT32_MAX)) &&
+       ((param1Value >= 100) || (0 == param1Value)))
+    {
+        LORAWAN_SetABDTimeout(param1Value);
+        pParserCmdInfo->pReplyCmd = (char*)gapParserSysStatus[OK_STATUS_IDX];
+    }
+    else
+    {
+        pParserCmdInfo->pReplyCmd = (char*)gapParserSysStatus[INVALID_PARAM_IDX];
+    }
+}
+
+void Parser_SystemGetABDTime(parserCmdInfo_t* pParserCmdInfo)
+{
+    uint32_t    abdTimeout;
+    
+    abdTimeout  = LORAWAN_GetABDTimeout();
+    ultoa(aParserData, abdTimeout, 10U);
+
+    pParserCmdInfo->pReplyCmd = aParserData;
+}
+
+#if defined(DEBUGLINKADR)
 void Parser_DebugLinkADR(parserCmdInfo_t* pParserCmdInfo)
 {
     uint8_t statusIdx   = SYS_STATUS_INVALID;

@@ -61,7 +61,11 @@ void Parser_SystemGetBattery(parserCmdInfo_t* pParserCmdInfo);
 
 void Parser_SystemGetHwEui(parserCmdInfo_t* pParserCmdInfo);
 
-#ifdef DEBUGLINKADR
+void Parser_SystemSetABDTime(parserCmdInfo_t* pParserCmdInfo);
+void Parser_SystemGetABDTime(parserCmdInfo_t* pParserCmdInfo);
+
+
+#if defined(DEBUGLINKADR)
 void Parser_DebugLinkADR(parserCmdInfo_t* pParserCmdInfo);
 #endif //DEBUGLINKADR
 

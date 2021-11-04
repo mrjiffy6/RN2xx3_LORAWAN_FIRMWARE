@@ -689,6 +689,7 @@ void Parser_LoraSave (parserCmdInfo_t* pParserCmdInfo)
     auint32_t temp32;
     uint8_t temp;
     uint16_t tempXor = 0;
+    auint16_t temp16;
 
     //Delete checksum as a first step
     DATAEE_WriteByte(MAX_EEPROM_PARAM_INDEX - 1, 0xFF);
@@ -803,6 +804,13 @@ void Parser_LoraSave (parserCmdInfo_t* pParserCmdInfo)
         DATAEE_WriteByte(startIdx ++, temp32.buffer[iCtr]);
     }
 
+    temp32.value = LORAWAN_GetMcastDownCounter();
+    for(iCtr = 0U; iCtr < 4U; iCtr ++)
+    {                
+        tempXor += temp32.buffer[iCtr];
+        DATAEE_WriteByte(startIdx ++, temp32.buffer[iCtr]);
+    }
+
     temp = (uint8_t)LORAWAN_GetMcast();
     tempXor += temp;
     DATAEE_WriteByte(startIdx ++, temp);
@@ -833,6 +841,19 @@ void Parser_LoraSave (parserCmdInfo_t* pParserCmdInfo)
     tempXor += temp;
     DATAEE_WriteByte(startIdx ++, temp);    
 
+    //Current rx1DROffset
+    temp = LORAWAN_GetReceiveOffset();
+    tempXor += temp;
+    DATAEE_WriteByte(startIdx ++, temp);
+    
+    //Current rx1Delay
+    temp16.value = LORAWAN_GetReceiveDelay1();
+    for(iCtr = 0U; iCtr < 2U; iCtr ++)
+    {
+        tempXor += temp16.buffer[iCtr];
+        DATAEE_WriteByte(startIdx ++, temp16.buffer[iCtr]);
+    }
+    
     if(tempXor == 0xFFFF)
     {
         tempXor = 0;
@@ -996,7 +1017,6 @@ void Parser_LoraGetMacStatus (parserCmdInfo_t* pParserCmdInfo)
     tempBuff[2] = (uint8_t)(macStatusMask >> 8);
     tempBuff[1] = (uint8_t)(macStatusMask >> 16);
     tempBuff[0] = (uint8_t)(macStatusMask >> 24);    
-    //TODO: use string instead of real value
     Parser_IntArrayToHexAscii(4, tempBuff, aParserData);
     pParserCmdInfo->pReplyCmd = aParserData;
 }
@@ -1088,7 +1108,6 @@ void Parser_LoraSetRxDelay1(parserCmdInfo_t* pParserCmdInfo)
     uint16_t rxDelay1 = atoi(pParserCmdInfo->pParam1);
     LorawanError_t status = INVALID_PARAMETER;
 
-    //TODO: maybe add validation for this to be  > 0
 
     if(Validate_UintDecAsciiValue(pParserCmdInfo->pParam1, 5, UINT16_MAX))
     {
