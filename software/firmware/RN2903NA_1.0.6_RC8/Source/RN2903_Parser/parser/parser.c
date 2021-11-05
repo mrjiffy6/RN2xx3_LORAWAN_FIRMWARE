@@ -44,9 +44,9 @@
 #include "../mcc_generated_files/eusart1.h"
 
 #if defined(DEBUGMACMSG) || defined(DEBUGLINKADR)
-#define VER_STR            "1.0.6 RC6-test1-debug"
+#define VER_STR            "1.0.6 RC8-custom-test1-debug"
 #else
-#define VER_STR            "1.0.6 RC8"
+#define VER_STR            "1.0.6 RC8-custom"
 #endif // DEBUG...
 #define HW_STR             "RN2903"
 
